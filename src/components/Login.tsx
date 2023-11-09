@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { loginFields } from "../constants/formFields";
 import Input from "./Input";
 import FormAction from "./FormAction";
+import { useNavigate } from "react-router-dom";
 
 interface Field {
   labelText: string;
@@ -19,6 +20,7 @@ fields.forEach((field) => (fieldsState[field.name] = ""));
 
 export default function Login() {
   const [loginState, setLoginState] = useState(fieldsState);
+  const navigate = useNavigate();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginState({ ...loginState, [e.target.name]: e.target.value });
@@ -39,7 +41,17 @@ export default function Login() {
       body: JSON.stringify(loginState),
     })
       .then((response) => {
-        response.json().then((data) => {} )
+        if (!response.ok) {
+          throw new Error("Authentication failed");
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        if (responseData.token) {
+          localStorage.setItem("token", responseData.token);
+          navigate("/meals");
+        }
+        console.log("Authentication successful");
       })
       .catch((error) => console.log(error));
     console.log("auth user");
