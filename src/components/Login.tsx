@@ -21,9 +21,7 @@ export default function Login() {
   const [loginState, setLoginState] = useState(fieldsState);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log(loginState);
     setLoginState({ ...loginState, [e.target.name]: e.target.value });
-    console.log(loginState);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
