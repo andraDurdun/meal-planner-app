@@ -1,5 +1,17 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+  IconButton,
+} from "@mui/material";
 
 interface MealResponse {
   content: Meal[];
@@ -31,7 +43,6 @@ export default function MealPage() {
       return;
     }
 
-    console.log(searchParams.get("pageSize"));
     const page = parseInt(searchParams.get("page") || "0");
     const pageSize = parseInt(searchParams.get("pageSize") || "2");
 
@@ -51,53 +62,114 @@ export default function MealPage() {
       })
       .then((responseData) => {
         setMealResponse(responseData);
-        console.log(responseData);
       })
       .catch((error) => console.log(error));
   }, [navigate, searchParams]);
 
-  const handlePreviousPage = () => {
-    let page = parseInt(searchParams.get("page") || "0");
-    if (page > 0) {
-      const newPage = page - 1;
-      const pageSize = parseInt(searchParams.get("pageSize") || "2");
-      setSearchParams({
-        page: newPage.toString(),
-        pageSize: pageSize.toString(),
-      });
-    }
+  const handlePageChange = (event: unknown, newPage: number) => {
+    const pageSize = searchParams.get("pageSize") || "2";
+    setSearchParams({
+      ...searchParams,
+      page: newPage.toString(),
+      pageSize: pageSize,
+    });
   };
 
-  const handleNextPage = () => {
-    let page = parseInt(searchParams.get("page") || "0");
-    const pageSize = parseInt(searchParams.get("pageSize") || "2");
-    if (
-      mealResponse &&
-      (page + 1) * pageSize < mealResponse.totalNumberOfElements
-    ) {
-      const newPage = page + 1;
-      setSearchParams({
-        page: newPage.toString(),
-        pageSize: pageSize.toString(),
-      });
+  const handleRowsPerPageChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setSearchParams({
+      ...searchParams,
+      page: "0",
+      pageSize: event.target.value,
+    });
+  };
+
+  const handleDeleteMeal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log(e.target);
+    console.log(e.currentTarget);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
     }
+
+    const mealId = e.currentTarget.name;
+    const deleteEndpointUrl = `http://localhost:8080/meal-planner/api/meals/${mealId}`;
+    fetch(deleteEndpointUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Authentication failed");
+        }
+        console.log(response);
+        return response.text();
+      })
+      .then(() => {
+        const page = searchParams.get("page") || "0";
+        const pageSize = searchParams.get("pageSize") || "2";
+
+        setSearchParams({
+          ...searchParams,
+          page: page,
+          pageSize: pageSize,
+        });
+      })
+      .catch((error) => console.log(error));
   };
 
   return (
     <div>
-      {mealResponse?.content.map((meal) => (
-        <div key={meal.id} className="flex">
-          <div className="p-2">{meal.name}</div>
-          <div className="p-2">{meal.calories}</div>
-          <div className="p-2">{meal.date}</div>
-          <div className="p-2">{meal.time}</div>
-        </div>
-      ))}
-      <div className="flex">
-        <div onClick={handlePreviousPage}>{"<"}</div>
-        <div>{mealResponse && mealResponse?.page + 1}</div>
-        <div onClick={handleNextPage}>{">"}</div>
-      </div>
+      <TableContainer component={Paper}>
+        <Table style={{ minWidth: 650 }} size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Calories</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {mealResponse?.content.map((meal) => (
+              <TableRow key={meal.id}>
+                <TableCell>{meal.id}</TableCell>
+                <TableCell>{meal.name}</TableCell>
+                <TableCell>{meal.calories}</TableCell>
+                <TableCell>{meal.date}</TableCell>
+                <TableCell>{meal.time}</TableCell>
+                <TableCell>
+                  <IconButton
+                    name={meal.id.toString()}
+                    onClick={handleDeleteMeal}
+                    aria-label="delete"
+                    size="small"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[2, 5, 10]}
+        component="div"
+        count={mealResponse?.totalNumberOfElements || 0}
+        rowsPerPage={parseInt(searchParams.get("pageSize") || "2")}
+        page={parseInt(searchParams.get("page") || "0")}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+      />
     </div>
   );
 }

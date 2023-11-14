@@ -3,7 +3,7 @@ import Signup from "../components/Signup";
 
 export default function SignupPage() {
   return (
-    <div>
+    <div className="max-w-md w-full space-y-8">
       <Header
         heading="Signup to create a new account"
         paragraph="Already have an account?"
