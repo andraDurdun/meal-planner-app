@@ -11,6 +11,7 @@ import {
   Paper,
   TablePagination,
   IconButton,
+  Button,
 } from "@mui/material";
 
 interface MealResponse {
@@ -124,8 +125,15 @@ export default function MealPage() {
       .catch((error) => console.log(error));
   };
 
+  const handleAddMeal = () => {
+    navigate("/add-meal");
+  };
+
   return (
     <div>
+      <Button variant="contained" onClick={handleAddMeal} className="mb-8 float-right">
+        + Add Meal
+      </Button>
       <TableContainer component={Paper}>
         <Table style={{ minWidth: 650 }} size="small">
           <TableHead>

@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 
 interface Props {
   heading: string;
-  paragraph: string;
-  linkName: string;
-  linkUrl: string;
+  paragraph?: string;
+  linkName?: string;
+  linkUrl?: string;
 }
 
 export default function Header({
