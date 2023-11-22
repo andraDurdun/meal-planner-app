@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Table,
   TableBody,
@@ -86,9 +87,12 @@ export default function MealPage() {
     });
   };
 
+  const handleEditMeal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const mealId = e.currentTarget.name;
+    navigate(`/edit-meal/${mealId}`);
+  };
+
   const handleDeleteMeal = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log(e.target);
-    console.log(e.currentTarget);
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -131,7 +135,11 @@ export default function MealPage() {
 
   return (
     <div>
-      <Button variant="contained" onClick={handleAddMeal} className="mb-8 float-right">
+      <Button
+        variant="contained"
+        onClick={handleAddMeal}
+        className="mb-8 float-right"
+      >
         + Add Meal
       </Button>
       <TableContainer component={Paper}>
@@ -144,6 +152,7 @@ export default function MealPage() {
               <TableCell>Date</TableCell>
               <TableCell>Time</TableCell>
               <TableCell></TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -154,6 +163,16 @@ export default function MealPage() {
                 <TableCell>{meal.calories}</TableCell>
                 <TableCell>{meal.date}</TableCell>
                 <TableCell>{meal.time}</TableCell>
+                <TableCell>
+                  <IconButton
+                    name={meal.id.toString()}
+                    onClick={handleEditMeal}
+                    aria-label="edit"
+                    size="small"
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </TableCell>
                 <TableCell>
                   <IconButton
                     name={meal.id.toString()}

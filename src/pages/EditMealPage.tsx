@@ -1,15 +1,14 @@
-import { Button, TextField } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import Header from "../components/Header";
+import { Button, TextField } from "@mui/material";
 import {
   DatePicker,
   LocalizationProvider,
   TimePicker,
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import React, { ChangeEvent, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import dayjs, { Dayjs } from "dayjs";
-import { UserContext } from "../context/UserContext";
 
 interface Meal {
   name: string;
@@ -27,17 +26,30 @@ const defaultMeal: Meal = {
   userId: 1,
 };
 
-export default function AddMealPage() {
+export default function EditMealPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [meal, setMeal] = useState<Meal>(defaultMeal);
-  const { user } = useContext(UserContext);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setMeal({ ...meal, [e.target.name]: e.target.value });
+  const parseLocalDate = (localDateString: string): Dayjs => {
+    const [year, month, day] = localDateString.split("-");
+    return dayjs()
+      .year(Number(year))
+      .month(Number(month) - 1)
+      .date(Number(day));
   };
 
-  const handleAddMeal = () => {
-    console.log(meal);
+  const parseLocalTime = (localTimeString: string): Dayjs => {
+    const [hour, minute, second] = localTimeString.split(":");
+    return dayjs()
+      .hour(Number(hour))
+      .minute(Number(minute))
+      .second(Number(second));
+  };
+
+  useEffect(() => {
+    const endpointUrl = `http://localhost:8080/meal-planner/api/meals/${id}`;
+
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -45,19 +57,12 @@ export default function AddMealPage() {
       return;
     }
 
-    const addMealEndpointUrl = "http://localhost:8080/meal-planner/api/meals";
-    fetch(addMealEndpointUrl, {
-      method: "POST",
+    fetch(endpointUrl, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        ...meal,
-        time: meal.time.format("HH:mm"),
-        date: meal.date.format("YYYY-MM-DD"),
-        userId: user.id,
-      }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -66,9 +71,25 @@ export default function AddMealPage() {
         return response.json();
       })
       .then((responseData) => {
-        navigate("/meals");
+        const date = parseLocalDate(responseData.date);
+        const time = parseLocalTime(responseData.time);
+
+        // Update the meal state
+        setMeal({
+          ...responseData,
+          date,
+          time,
+        });
       })
       .catch((error) => console.log(error));
+  }, [navigate, id]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setMeal({ ...meal, [e.target.name]: e.target.value });
+  };
+
+  const handleAddMeal = () => {
+    console.log(meal);
   };
 
   return (

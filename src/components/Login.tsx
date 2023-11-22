@@ -1,8 +1,9 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { loginFields } from "../constants/formFields";
 import Input from "./Input";
 import FormAction from "./FormAction";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 interface Field {
   labelText: string;
@@ -21,6 +22,7 @@ fields.forEach((field) => (fieldsState[field.name] = ""));
 export default function Login() {
   const [loginState, setLoginState] = useState(fieldsState);
   const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginState({ ...loginState, [e.target.name]: e.target.value });
@@ -48,6 +50,7 @@ export default function Login() {
       })
       .then((responseData) => {
         if (responseData.token) {
+          setUser({ ...user, token: responseData.token });
           localStorage.setItem("token", responseData.token);
           navigate("/meals");
         }
