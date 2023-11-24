@@ -30,7 +30,7 @@ const defaultMeal: Meal = {
 export default function AddMealPage() {
   const navigate = useNavigate();
   const [meal, setMeal] = useState<Meal>(defaultMeal);
-  const { user } = useContext(UserContext);
+  const user = useContext(UserContext);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setMeal({ ...meal, [e.target.name]: e.target.value });

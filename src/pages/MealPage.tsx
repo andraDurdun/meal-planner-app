@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -14,6 +14,7 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
+import { UserContext } from "../context/UserContext";
 
 interface MealResponse {
   content: Meal[];
@@ -31,6 +32,7 @@ interface Meal {
 
 export default function MealPage() {
   const navigate = useNavigate();
+  const user = useContext(UserContext);
   const [mealResponse, setMealResponse] = useState<MealResponse>();
   const [searchParams, setSearchParams] = useSearchParams({
     page: "0",
@@ -135,6 +137,7 @@ export default function MealPage() {
 
   return (
     <div>
+      <div>Hello {user.lastName}</div>
       <Button
         variant="contained"
         onClick={handleAddMeal}

@@ -22,7 +22,6 @@ fields.forEach((field) => (fieldsState[field.name] = ""));
 export default function Login() {
   const [loginState, setLoginState] = useState(fieldsState);
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserContext);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginState({ ...loginState, [e.target.name]: e.target.value });
@@ -50,7 +49,6 @@ export default function Login() {
       })
       .then((responseData) => {
         if (responseData.token) {
-          setUser({ ...user, token: responseData.token });
           localStorage.setItem("token", responseData.token);
           navigate("/meals");
         }

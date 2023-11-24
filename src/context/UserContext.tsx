@@ -1,39 +1,70 @@
-import React, { createContext, ReactNode, useState } from "react";
+import React, { createContext, ReactNode, useEffect, useState } from "react";
 
 interface User {
   id: number | null;
   role: string | null;
-  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   token: string | null;
 }
 
-interface UserData {
-  user: User;
-  setUser: (user: User) => void;
-}
-
-export const UserContext = createContext<UserData>({
-  user: { id: null, role: null, name: null, token: null },
-  setUser: () => {},
+export const UserContext = createContext<User>({
+  id: null,
+  role: null,
+  firstName: null,
+  lastName: null,
+  token: null,
 });
 
 interface UserProviderProps {
   children: ReactNode;
 }
 
-export const UserProvider = ({ children }: UserProviderProps) => {
-  const [userProvider, setUserProvider] = useState<UserData>({
-    user: {
-      id: null,
-      role: null,
-      name: null,
-      token: null,
-    },
-    setUser: (userData: User) =>
-      setUserProvider({ ...userProvider, user: userData }),
+export function UserProvider({ children }: UserProviderProps) {
+  const [user, setUser] = useState<User>({
+    id: null,
+    role: null,
+    firstName: null,
+    lastName: null,
+    token: null,
   });
 
-  return (
-    <UserContext.Provider value={userProvider}>{children}</UserContext.Provider>
-  );
-};
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("in UserProvider effect");
+
+    if (token) {
+      console.log("in UserProvider effect, not empty token");
+
+      const endpointUrl = "http://localhost:8080/meal-planner/api/users/me";
+
+      fetch(endpointUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Authentication failed");
+          }
+          return response.json();
+        })
+        .then((responseData) => {
+          console.log(responseData);
+          setUser({
+            id: responseData.id,
+            role: responseData.role,
+            firstName: responseData.firstName,
+            lastName: responseData.lastName,
+            token: token,
+          });
+          console.log(user);
+        })
+        .catch((error) => console.log(error));
+    }
+  }, []);
+
+  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
+}
