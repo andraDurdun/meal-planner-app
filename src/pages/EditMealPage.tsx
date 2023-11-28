@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import Header from "../components/Header";
 import { Button, TextField } from "@mui/material";
 import {
@@ -9,6 +9,9 @@ import {
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
+import { UserContext } from "../context/UserContext";
+import { axiosPrivateInstance } from "../api/apiService";
+import { MEAL_BY_ID_ENDPOINT, urlWithPathVariable } from "../api/apiConstants";
 
 interface Meal {
   name: string;
@@ -30,6 +33,7 @@ export default function EditMealPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [meal, setMeal] = useState<Meal>(defaultMeal);
+  const user = useContext(UserContext);
 
   const parseLocalDate = (localDateString: string): Dayjs => {
     const [year, month, day] = localDateString.split("-");
@@ -48,48 +52,51 @@ export default function EditMealPage() {
   };
 
   useEffect(() => {
-    const endpointUrl = `http://localhost:8080/meal-planner/api/meals/${id}`;
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      navigate("/login");
+    if (id === undefined) {
+      console.error("Error: ID is undefined");
       return;
     }
 
-    fetch(endpointUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    axiosPrivateInstance
+      .get(urlWithPathVariable(MEAL_BY_ID_ENDPOINT, id))
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Authentication failed");
-        }
-        return response.json();
-      })
-      .then((responseData) => {
+        const responseData = response.data;
         const date = parseLocalDate(responseData.date);
         const time = parseLocalTime(responseData.time);
 
-        // Update the meal state
         setMeal({
           ...responseData,
           date,
           time,
         });
-      })
-      .catch((error) => console.log(error));
+      });
   }, [navigate, id]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setMeal({ ...meal, [e.target.name]: e.target.value });
   };
 
-  const handleAddMeal = () => {
-    console.log(meal);
+  const handleEditMeal = () => {
+    if (id === undefined) {
+      console.error("Error: ID is undefined");
+      return;
+    }
+
+    const requestBody = JSON.stringify({
+      ...meal,
+      time: meal.time.format("HH:mm"),
+      date: meal.date.format("YYYY-MM-DD"),
+      userId: user.id,
+    });
+
+    axiosPrivateInstance
+      .put(urlWithPathVariable(MEAL_BY_ID_ENDPOINT, id), requestBody)
+      .then(() => {
+        navigate("/meals");
+      })
+      .catch((error) =>
+        console.error(`Error deleting meal with ID ${id}:`, error),
+      );
   };
 
   return (
@@ -157,7 +164,7 @@ export default function EditMealPage() {
             }}
           />
         </LocalizationProvider>
-        <Button variant="contained" onClick={handleAddMeal}>
+        <Button variant="contained" onClick={handleEditMeal}>
           Save
         </Button>
       </div>
