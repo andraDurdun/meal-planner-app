@@ -95,7 +95,7 @@ export default function EditMealPage() {
         navigate("/meals");
       })
       .catch((error) =>
-        console.error(`Error deleting meal with ID ${id}:`, error),
+        console.error(`Error while editing meal with ID ${id}:`, error),
       );
   };
 

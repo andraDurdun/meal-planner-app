@@ -10,6 +10,8 @@ import React, { ChangeEvent, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import dayjs, { Dayjs } from "dayjs";
 import { UserContext } from "../context/UserContext";
+import { axiosPrivateInstance } from "../api/apiService";
+import { MEALS_ENDPOINT } from "../api/apiConstants";
 
 interface Meal {
   name: string;
@@ -37,38 +39,17 @@ export default function AddMealPage() {
   };
 
   const handleAddMeal = () => {
-    console.log(meal);
-    const token = localStorage.getItem("token");
+    const requestBody = JSON.stringify({
+      ...meal,
+      time: meal.time.format("HH:mm"),
+      date: meal.date.format("YYYY-MM-DD"),
+      userId: user.id,
+    });
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const addMealEndpointUrl = "http://localhost:8080/meal-planner/api/meals";
-    fetch(addMealEndpointUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        ...meal,
-        time: meal.time.format("HH:mm"),
-        date: meal.date.format("YYYY-MM-DD"),
-        userId: user.id,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Authentication failed");
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        navigate("/meals");
-      })
-      .catch((error) => console.log(error));
+    axiosPrivateInstance
+      .post(MEALS_ENDPOINT, requestBody)
+      .then(() => navigate("/meals"))
+      .catch((error) => console.error(`Error adding new meal.`, error));
   };
 
   return (

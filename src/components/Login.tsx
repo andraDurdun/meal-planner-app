@@ -4,6 +4,8 @@ import Input from "./Input";
 import FormAction from "./FormAction";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import { axiosPrivateInstance } from "../api/apiService";
+import { SING_IN_ENDPOINT } from "../api/apiConstants";
 
 interface Field {
   labelText: string;
@@ -33,29 +35,19 @@ export default function Login() {
   };
 
   const authenticateUser = () => {
-    const endpointUrl = "http://localhost:8080/meal-planner/api/auth/signin";
-    fetch(endpointUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(loginState),
-    })
+    const requestBody = JSON.stringify(loginState);
+
+    axiosPrivateInstance
+      .post(SING_IN_ENDPOINT, requestBody)
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Authentication failed");
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        if (responseData.token) {
-          localStorage.setItem("token", responseData.token);
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
           navigate("/meals");
         }
-        console.log("Authentication successful");
       })
-      .catch((error) => console.log(error));
-    console.log("auth user");
+      .catch((error) => {
+        console.log("Authentication failed ", error);
+      });
   };
 
   return (

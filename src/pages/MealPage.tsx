@@ -15,6 +15,14 @@ import {
   Button,
 } from "@mui/material";
 import { UserContext } from "../context/UserContext";
+import { axiosPrivateInstance } from "../api/apiService";
+import {
+  MEAL_BY_ID_ENDPOINT,
+  MEALS_ENDPOINT,
+  MEALS_WITH_PAGINATION_ENDPOINT,
+  urlWithPagination,
+  urlWithPathVariable,
+} from "../api/apiConstants";
 
 interface MealResponse {
   content: Meal[];
@@ -40,34 +48,15 @@ export default function MealPage() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const page = searchParams.get("page") || "0";
+    const pageSize = searchParams.get("pageSize") || "2";
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const page = parseInt(searchParams.get("page") || "0");
-    const pageSize = parseInt(searchParams.get("pageSize") || "2");
-
-    const endpointUrl = `http://localhost:8080/meal-planner/api/meals?page=${page}&pageSize=${pageSize}`;
-    fetch(endpointUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    axiosPrivateInstance
+      .get(urlWithPagination(MEALS_WITH_PAGINATION_ENDPOINT, page, pageSize))
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Authentication failed");
-        }
-        return response.json();
+        setMealResponse(response.data);
       })
-      .then((responseData) => {
-        setMealResponse(responseData);
-      })
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(`Error retrieving meal page.`, error));
   }, [navigate, searchParams]);
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -95,29 +84,10 @@ export default function MealPage() {
   };
 
   const handleDeleteMeal = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const token = localStorage.getItem("token");
+    const id = e.currentTarget.name;
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const mealId = e.currentTarget.name;
-    const deleteEndpointUrl = `http://localhost:8080/meal-planner/api/meals/${mealId}`;
-    fetch(deleteEndpointUrl, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Authentication failed");
-        }
-        console.log(response);
-        return response.text();
-      })
+    axiosPrivateInstance
+      .delete(urlWithPathVariable(MEAL_BY_ID_ENDPOINT, id))
       .then(() => {
         const page = searchParams.get("page") || "0";
         const pageSize = searchParams.get("pageSize") || "2";
@@ -128,7 +98,9 @@ export default function MealPage() {
           pageSize: pageSize,
         });
       })
-      .catch((error) => console.log(error));
+      .catch((error) =>
+        console.error(`Error while deleting meal with ID ${id}:`, error),
+      );
   };
 
   const handleAddMeal = () => {
