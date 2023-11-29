@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -46,8 +46,7 @@ export default function MealPage() {
     page: "0",
     pageSize: "2",
   });
-
-  useEffect(() => {
+  const fetchMeals = useCallback(() => {
     const page = searchParams.get("page") || "0";
     const pageSize = searchParams.get("pageSize") || "2";
 
@@ -57,7 +56,11 @@ export default function MealPage() {
         setMealResponse(response.data);
       })
       .catch((error) => console.error(`Error retrieving meal page.`, error));
-  }, [navigate, searchParams]);
+  }, [searchParams]);
+
+  useEffect(() => {
+    fetchMeals();
+  }, [fetchMeals, searchParams]);
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const pageSize = searchParams.get("pageSize") || "2";
@@ -89,14 +92,7 @@ export default function MealPage() {
     axiosPrivateInstance
       .delete(urlWithPathVariable(MEAL_BY_ID_ENDPOINT, id))
       .then(() => {
-        const page = searchParams.get("page") || "0";
-        const pageSize = searchParams.get("pageSize") || "2";
-
-        setSearchParams({
-          ...searchParams,
-          page: page,
-          pageSize: pageSize,
-        });
+        fetchMeals();
       })
       .catch((error) =>
         console.error(`Error while deleting meal with ID ${id}:`, error),

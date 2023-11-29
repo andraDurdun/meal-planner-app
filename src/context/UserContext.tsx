@@ -31,7 +31,7 @@ export function UserProvider({ children }: UserProviderProps) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("in UserProvider effect");
+    console.log("in UserProvider effect with token: ", token);
 
     if (token) {
       console.log("in UserProvider effect, not empty token");
@@ -60,7 +60,6 @@ export function UserProvider({ children }: UserProviderProps) {
             lastName: responseData.lastName,
             token: token,
           });
-          console.log(user);
         })
         .catch((error) => console.log(error));
     }
