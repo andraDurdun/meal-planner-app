@@ -18,7 +18,6 @@ import { UserContext } from "../context/UserContext";
 import { axiosPrivateInstance } from "../api/apiService";
 import {
   MEAL_BY_ID_ENDPOINT,
-  MEALS_ENDPOINT,
   MEALS_WITH_PAGINATION_ENDPOINT,
   urlWithPagination,
   urlWithPathVariable,
@@ -60,7 +59,7 @@ export default function MealPage() {
 
   useEffect(() => {
     fetchMeals();
-  }, [fetchMeals, searchParams]);
+  }, [fetchMeals]);
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const pageSize = searchParams.get("pageSize") || "2";

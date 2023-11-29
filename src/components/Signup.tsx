@@ -2,7 +2,7 @@ import { signupFields } from "../constants/formFields";
 import { ChangeEvent, FormEvent, useState } from "react";
 import Input from "./Input";
 import FormAction from "./FormAction";
-import { axiosPrivateInstance } from "../api/apiService";
+import { axiosPublicInstance } from "../api/apiService";
 import { SIGN_UP_ENDPOINT } from "../api/apiConstants";
 import { useNavigate } from "react-router-dom";
 
@@ -35,7 +35,7 @@ export default function Signup() {
 
   const signupUser = () => {
     const requestBody = JSON.stringify(signupState);
-    axiosPrivateInstance
+    axiosPublicInstance
       .post(SIGN_UP_ENDPOINT, requestBody)
       .then(() => navigate("/"))
       .catch((error) => {

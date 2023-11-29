@@ -1,4 +1,6 @@
 import React, { createContext, ReactNode, useEffect, useState } from "react";
+import { axiosPrivateInstance } from "../api/apiService";
+import { USERS_ME_ENDPOINT } from "../api/apiConstants";
 
 interface User {
   id: number | null;
@@ -31,28 +33,12 @@ export function UserProvider({ children }: UserProviderProps) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("in UserProvider effect with token: ", token);
 
     if (token) {
-      console.log("in UserProvider effect, not empty token");
-
-      const endpointUrl = "http://localhost:8080/meal-planner/api/users/me";
-
-      fetch(endpointUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      axiosPrivateInstance
+        .get(USERS_ME_ENDPOINT)
         .then((response) => {
-          if (!response.ok) {
-            throw new Error("Authentication failed");
-          }
-          return response.json();
-        })
-        .then((responseData) => {
-          console.log(responseData);
+          const responseData = response.data;
           setUser({
             id: responseData.id,
             role: responseData.role,
@@ -61,7 +47,7 @@ export function UserProvider({ children }: UserProviderProps) {
             token: token,
           });
         })
-        .catch((error) => console.log(error));
+        .catch((error) => console.log("Cannot fetch logged user: ", error));
     }
   }, []);
 

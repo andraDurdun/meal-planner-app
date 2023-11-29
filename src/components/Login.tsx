@@ -3,8 +3,7 @@ import { loginFields } from "../constants/formFields";
 import Input from "./Input";
 import FormAction from "./FormAction";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../context/UserContext";
-import { axiosPrivateInstance } from "../api/apiService";
+import { axiosPublicInstance } from "../api/apiService";
 import { SING_IN_ENDPOINT } from "../api/apiConstants";
 
 interface Field {
@@ -37,7 +36,7 @@ export default function Login() {
   const authenticateUser = () => {
     const requestBody = JSON.stringify(loginState);
 
-    axiosPrivateInstance
+    axiosPublicInstance
       .post(SING_IN_ENDPOINT, requestBody)
       .then((response) => {
         if (response.data.token) {

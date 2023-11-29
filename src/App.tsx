@@ -15,18 +15,22 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/" element={<PrivateRoute />}>
-            <Route path="/" element={<MealPage />} />
-          </Route>
-          <Route path="/meals" element={<PrivateRoute />}>
-            <Route path="/meals" element={<MealPage />} />
-          </Route>
-          <Route path="/add-meal" element={<PrivateRoute />}>
-            <Route path="/add-meal" element={<AddMealPage />} />
-          </Route>
-          <Route path="/edit-meal/:id" element={<EditMealPage />}>
-            <Route path="/edit-meal/:id" element={<EditMealPage />} />
-          </Route>
+          <Route
+            path="/"
+            element={<PrivateRoute component={<MealPage />} />}
+          ></Route>
+          <Route
+            path="/meals"
+            element={<PrivateRoute component={<MealPage />} />}
+          ></Route>
+          <Route
+            path="/add-meal"
+            element={<PrivateRoute component={<AddMealPage />} />}
+          ></Route>
+          <Route
+            path="/edit-meal/:id"
+            element={<PrivateRoute component={<EditMealPage />} />}
+          ></Route>
         </Routes>
       </BrowserRouter>
     </div>

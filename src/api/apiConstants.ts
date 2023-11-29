@@ -3,6 +3,7 @@ export const MEALS_ENDPOINT = "/meals";
 export const MEALS_WITH_PAGINATION_ENDPOINT =
   "/meals?page=:page&pageSize=:pageSize";
 export const MEAL_BY_ID_ENDPOINT = "/meals/:id";
+export const USERS_ME_ENDPOINT = "/users/me";
 export const SING_IN_ENDPOINT = "/auth/signin";
 export const SIGN_UP_ENDPOINT = "/auth/signup";
 

@@ -8,14 +8,14 @@ import { BASE_URL } from "./apiConstants";
 const axiosPrivateInstance: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
-    "Content-Type": "application/json", // Include the Content-Type header
+    "Content-Type": "application/json",
   },
 });
 
 const axiosPublicInstance: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
-    "Content-Type": "application/json", // Include the Content-Type header
+    "Content-Type": "application/json",
   },
 });
 
