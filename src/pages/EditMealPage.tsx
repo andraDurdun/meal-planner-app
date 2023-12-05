@@ -11,7 +11,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { UserContext } from "../context/UserContext";
 import { axiosPrivateInstance } from "../api/apiService";
-import { MEAL_BY_ID_ENDPOINT, urlWithPathVariable } from "../api/apiConstants";
+import { MEAL_BY_ID_ENDPOINT, addPathVariableToUrl } from "../api/apiConstants";
 
 interface Meal {
   name: string;
@@ -58,7 +58,7 @@ export default function EditMealPage() {
     }
 
     axiosPrivateInstance
-      .get(urlWithPathVariable(MEAL_BY_ID_ENDPOINT, id))
+      .get(addPathVariableToUrl(MEAL_BY_ID_ENDPOINT, id))
       .then((response) => {
         const responseData = response.data;
         const date = parseLocalDate(responseData.date);
@@ -90,7 +90,7 @@ export default function EditMealPage() {
     });
 
     axiosPrivateInstance
-      .put(urlWithPathVariable(MEAL_BY_ID_ENDPOINT, id), requestBody)
+      .put(addPathVariableToUrl(MEAL_BY_ID_ENDPOINT, id), requestBody)
       .then(() => {
         navigate("/meals");
       })
