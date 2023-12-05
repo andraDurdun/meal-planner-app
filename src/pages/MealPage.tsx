@@ -14,7 +14,6 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
-import { UserContext } from "../context/UserContext";
 import { axiosPrivateInstance } from "../api/apiService";
 import {
   MEAL_BY_ID_ENDPOINT,
@@ -30,6 +29,7 @@ import {
   TimePicker,
 } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
+import MyAccount from "../components/MyAccount";
 
 interface MealResponse {
   content: Meal[];
@@ -54,7 +54,6 @@ interface MealFilter {
 
 export default function MealPage() {
   const navigate = useNavigate();
-  const user = useContext(UserContext);
   const [mealResponse, setMealResponse] = useState<MealResponse>();
   const [mealFilter, setMealFilter] = useState<MealFilter>();
   const [searchParams, setSearchParams] = useSearchParams({
@@ -164,166 +163,171 @@ export default function MealPage() {
 
   return (
     <div>
-      <div>Hello {user.lastName}</div>
-      <div className="mb-8 mt-8">
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="From"
-            slotProps={{
-              textField: {
-                variant: "standard",
-                InputLabelProps: {
-                  shrink: true,
+      <MyAccount />
+      <div className="flex flex-col space-y-4 mt-10">
+        <div className="flex items-center space-x-6">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="From"
+              slotProps={{
+                textField: {
+                  variant: "standard",
+                  InputLabelProps: {
+                    shrink: true,
+                  },
+                  name: "date-from",
                 },
-                name: "date-from",
-              },
-              actionBar: {
-                actions: ["clear"],
-              },
-            }}
-            format="DD/MM/YYYY"
-            value={mealFilter?.dateFrom}
-            onChange={(newDateFrom) => {
-              setMealFilter({
-                ...mealFilter,
-                dateFrom: newDateFrom || undefined,
-              });
-            }}
-            className="mr-8"
-          />
-          <DatePicker
-            label="To"
-            slotProps={{
-              textField: {
-                variant: "standard",
-                InputLabelProps: {
-                  shrink: true,
+                actionBar: {
+                  actions: ["clear"],
                 },
-                name: "date-to",
-              },
-              actionBar: {
-                actions: ["clear"],
-              },
-            }}
-            format="DD/MM/YYYY"
-            value={mealFilter?.dateTo}
-            onChange={(newDateTo) =>
-              setMealFilter({ ...mealFilter, dateTo: newDateTo || undefined })
-            }
-            className="mr-8"
-          />
-          <TimePicker
-            label="From"
-            slotProps={{
-              textField: {
-                variant: "standard",
-                InputLabelProps: {
-                  shrink: true,
+              }}
+              format="DD/MM/YYYY"
+              value={mealFilter?.dateFrom}
+              onChange={(newDateFrom) => {
+                setMealFilter({
+                  ...mealFilter,
+                  dateFrom: newDateFrom || undefined,
+                });
+              }}
+              className="mr-8"
+            />
+            <DatePicker
+              label="To"
+              slotProps={{
+                textField: {
+                  variant: "standard",
+                  InputLabelProps: {
+                    shrink: true,
+                  },
+                  name: "date-to",
                 },
-                name: "timeFrom",
-              },
-              actionBar: {
-                actions: ["clear"],
-              },
-            }}
-            value={mealFilter?.timeFrom}
-            format="HH:mm"
-            onChange={(newDateFrom) =>
-              setMealFilter({
-                ...mealFilter,
-                timeFrom: newDateFrom || undefined,
-              })
-            }
-            className="mr-8"
-          />
-          <TimePicker
-            label="To"
-            slotProps={{
-              textField: {
-                variant: "standard",
-                InputLabelProps: {
-                  shrink: true,
+                actionBar: {
+                  actions: ["clear"],
                 },
-                name: "timeTo",
-              },
-              actionBar: {
-                actions: ["clear"],
-              },
-            }}
-            value={mealFilter?.timeTo}
-            format="HH:mm"
-            onChange={(newTimeTo) => {
-              setMealFilter({ ...mealFilter, timeTo: newTimeTo || undefined });
-            }}
-            className="mr-8"
+              }}
+              format="DD/MM/YYYY"
+              value={mealFilter?.dateTo}
+              onChange={(newDateTo) =>
+                setMealFilter({ ...mealFilter, dateTo: newDateTo || undefined })
+              }
+              className="mr-8"
+            />
+            <TimePicker
+              label="From"
+              slotProps={{
+                textField: {
+                  variant: "standard",
+                  InputLabelProps: {
+                    shrink: true,
+                  },
+                  name: "timeFrom",
+                },
+                actionBar: {
+                  actions: ["clear"],
+                },
+              }}
+              value={mealFilter?.timeFrom}
+              format="HH:mm"
+              onChange={(newDateFrom) =>
+                setMealFilter({
+                  ...mealFilter,
+                  timeFrom: newDateFrom || undefined,
+                })
+              }
+              className="mr-8"
+            />
+            <TimePicker
+              label="To"
+              slotProps={{
+                textField: {
+                  variant: "standard",
+                  InputLabelProps: {
+                    shrink: true,
+                  },
+                  name: "timeTo",
+                },
+                actionBar: {
+                  actions: ["clear"],
+                },
+              }}
+              value={mealFilter?.timeTo}
+              format="HH:mm"
+              onChange={(newTimeTo) => {
+                setMealFilter({
+                  ...mealFilter,
+                  timeTo: newTimeTo || undefined,
+                });
+              }}
+              className="mr-8"
+            />
+          </LocalizationProvider>
+          <Button variant="contained" onClick={handleSearch}>
+            Search
+          </Button>
+        </div>
+        <div>
+          <TableContainer component={Paper}>
+            <Table style={{ minWidth: 650 }} size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Calories</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {mealResponse?.content.map((meal) => (
+                  <TableRow key={meal.id}>
+                    <TableCell>{meal.id}</TableCell>
+                    <TableCell>{meal.name}</TableCell>
+                    <TableCell>{meal.calories}</TableCell>
+                    <TableCell>{meal.date}</TableCell>
+                    <TableCell>{meal.time}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        name={meal.id.toString()}
+                        onClick={handleEditMeal}
+                        aria-label="edit"
+                        size="small"
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        name={meal.id.toString()}
+                        onClick={handleDeleteMeal}
+                        aria-label="delete"
+                        size="small"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[2, 5, 10]}
+            component="div"
+            count={mealResponse?.totalNumberOfElements || 0}
+            rowsPerPage={parseInt(searchParams.get("pageSize") || "2")}
+            page={parseInt(searchParams.get("page") || "0")}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
           />
-        </LocalizationProvider>
-        <Button variant="contained" onClick={handleSearch}>
-          Search
-        </Button>
+        </div>
+        <div className="flex justify-end">
+          <Button variant="contained" onClick={handleAddMeal}>
+            + Add Meal
+          </Button>
+        </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table style={{ minWidth: 650 }} size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Calories</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Time</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {mealResponse?.content.map((meal) => (
-              <TableRow key={meal.id}>
-                <TableCell>{meal.id}</TableCell>
-                <TableCell>{meal.name}</TableCell>
-                <TableCell>{meal.calories}</TableCell>
-                <TableCell>{meal.date}</TableCell>
-                <TableCell>{meal.time}</TableCell>
-                <TableCell>
-                  <IconButton
-                    name={meal.id.toString()}
-                    onClick={handleEditMeal}
-                    aria-label="edit"
-                    size="small"
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    name={meal.id.toString()}
-                    onClick={handleDeleteMeal}
-                    aria-label="delete"
-                    size="small"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[2, 5, 10]}
-        component="div"
-        count={mealResponse?.totalNumberOfElements || 0}
-        rowsPerPage={parseInt(searchParams.get("pageSize") || "2")}
-        page={parseInt(searchParams.get("page") || "0")}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-      />
-      <Button
-        variant="contained"
-        onClick={handleAddMeal}
-        className="float-right"
-      >
-        + Add Meal
-      </Button>
     </div>
   );
 }
